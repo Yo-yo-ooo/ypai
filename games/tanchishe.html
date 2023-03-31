@@ -1,0 +1,124 @@
+<!doctype html>
+<html>
+  <head>
+    <title>贪吃蛇游戏</title>
+    <style>
+      #game-board {
+        border: 1px solid black;
+      }
+    </style>
+  </head>
+  <body>
+    <canvas id="game-board" width="500" height="500"></canvas>
+    <script>
+      var canvas = document.getElementById("game-board");
+      var ctx = canvas.getContext("2d");
+
+      // 初始化蛇头位置和身体
+      var snake = {
+        x: 10,
+        y: 10,
+        body: []
+      };
+
+      // 初始化食物位置
+      var food = {
+        x: 200,
+        y: 200
+      };
+
+      // 监听方向键事件
+      document.addEventListener("keydown", function(event) {
+        if (event.keyCode === 37 && snake.direction !== "right") {
+          snake.direction = "left";
+        } else if (event.keyCode === 38 && snake.direction !== "down") {
+          snake.direction = "up";
+        } else if (event.keyCode === 39 && snake.direction !== "left") {
+          snake.direction = "right";
+        } else if (event.keyCode === 40 && snake.direction !== "up") {
+          snake.direction = "down";
+        }
+      });
+
+      // 主循环
+      function main() {
+        setTimeout(function() {
+          // 移动蛇
+          moveSnake();
+          
+          // 绘制画面
+          draw();
+
+          // 继续循环
+          main();
+        }, 1000 / 10);
+      }
+
+      // 移动蛇
+      function moveSnake() {
+        // 在snake.body数组中插入新的蛇头位置
+        snake.body.unshift({ x: snake.x, y: snake.y });
+
+        // 根据方向更新蛇头坐标
+        if (snake.direction === "up") {
+          snake.y -= 10;
+        } else if (snake.direction === "down") {
+          snake.y += 10;
+        } else if (snake.direction === "left") {
+          snake.x -= 10;
+        } else if (snake.direction === "right") {
+          snake.x += 10;
+        }
+
+        // 如果蛇头和食物相撞，则生成新的食物，蛇身增加一格
+        if (checkCollision(snake, food)) {
+          snake.body.push({});
+          generateFood();
+        } else {
+          // 否则，移除蛇身最后一格
+          snake.body.pop();
+        }
+      }
+
+      // 绘制画面
+      function draw() {
+        // 清空画布
+        ctx.clearRect(0, 0, canvas.width, canvas.height);
+
+        // 绘制蛇头
+        ctx.fillStyle = "green";
+        ctx.fillRect(snake.x, snake.y, 10, 10);
+
+        // 绘制蛇身
+        ctx.fillStyle = "black";
+        for (var i = 0; i < snake.body.length; i++) {
+          var segment = snake.body[i];
+          ctx.fillRect(segment.x, segment.y, 10, 10);
+        }
+
+        // 绘制食物
+        ctx.fillStyle = "red";
+        ctx.fillRect(food.x, food.y, 10, 10);
+      }
+
+      // 检测碰撞
+      function checkCollision(obj1, obj2) {
+        return (
+          Math.abs(obj1.x - obj2.x) < 10 &&
+          Math.abs(obj1.y - obj2.y) < 10
+        );
+      }
+
+      // 生成新的食物位置
+      function generateFood() {
+        var newX = Math.floor(Math.random() * canvas.width / 10) * 10;
+        var newY = Math.floor(Math.random() * canvas.height / 10) * 10;
+        food.x = newX;
+        food.y = newY;
+      }
+
+      // 启动游戏
+      main();
+    </script>
+  </body>
+</html>
